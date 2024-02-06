@@ -1,8 +1,22 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+import express from 'express';
+import bodyParser from "body-parser"
+import { Kafka } from 'kafkajs';
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "./convex/_generated/api.js";
+import { useMutation } from "convex/react";
+import * as dotenv from "dotenv";
+import MyComponent from './script.js';
+dotenv.config({ path: ".env.local" });
+
 const app = express();
 app.use(bodyParser.json())
-const { Kafka } = require('kafkajs');
+
+// const client = new ConvexHttpClient(process.env["CONVEX_URL"]);
+// export function saveToDb({ task, filepath }) {
+//   const mutation = useMutation(api.operations.insertEntry);
+//   mutation({ task, filepath })
+// };
+
 // KAFKA CONFIG
 (async () => {
   console.log("Initializing kafka...");
@@ -22,11 +36,13 @@ const { Kafka } = require('kafkajs');
   await consumer.connect();
   console.log("Connected to consumer.");
 
-// KAFKA SUBSCRIPTION
-  await consumer.subscribe({ topic: 'quickstart-events', fromBeginning: true });
-  // console.log("Consumer subscribed to topic = quickstart-events");
+  // KAFKA SUBSCRIPTION
+  const subscribeToTopic = async (params) => {
+    await consumer.subscribe(params)
+  }
+  subscribeToTopic({ topic: 'quickstart-events', fromBeginning: true })
 
-  // Log every message consumed
+
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
 
