@@ -1,12 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { Kafka } from "kafkajs";
-import { ConvexHttpClient } from "convex/browser";
-import { api } from "./convex/_generated/api.js";
-import { useMutation } from "convex/react";
-import * as dotenv from "dotenv";
-import MyComponent from "./script.js";
-dotenv.config({ path: ".env.local" });
 
 const app = express();
 app.use(bodyParser.json())(
