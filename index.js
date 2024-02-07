@@ -19,7 +19,7 @@ if (!fs.existsSync(uploadsDirectory)) {
 
 // KAFKA CONFIG
 (async () => {
-  console.log("Initializing kafka...");
+  console.debug("Initializing kafka...");
   const kafka = new Kafka({
     clientId: "kafka-nodejs-starter",
     brokers: ["localhost:9092"],
@@ -38,11 +38,7 @@ if (!fs.existsSync(uploadsDirectory)) {
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
-      console.log("Consumed a message =", {
-        topic,
-        partition,
-        value: message.value.toString(),
-      });
+      console.debug("Consumed a message");
 
       try {
         const fileData = JSON.parse(message.value.toString());
@@ -54,7 +50,7 @@ if (!fs.existsSync(uploadsDirectory)) {
 
         fs.writeFileSync(filePath, decodedData);
 
-        console.log(`File "${name}" saved successfully.`);
+        console.info(`File "${name}" saved successfully.`);
       } catch (error) {
         console.error("Error processing file:", error);
       }
@@ -62,6 +58,6 @@ if (!fs.existsSync(uploadsDirectory)) {
   });
 
   app.listen(PORT, () => {
-    console.log(`🎉🎉🎉 Application running on port: ${PORT} 🎉🎉🎉`);
+    console.debug(`🎉🎉🎉 Application running on port: ${PORT} 🎉🎉🎉`);
   });
 })();
