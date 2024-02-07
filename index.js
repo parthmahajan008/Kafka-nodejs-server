@@ -2,11 +2,20 @@ import express from "express";
 import bodyParser from "body-parser";
 import { Kafka } from "kafkajs";
 import fs from 'fs';
+import path from 'path';
 
 const app = express();
 app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3001;
+
+// Ensure the 'uploads' directory exists
+const currentModuleDir = path.dirname(new URL(import.meta.url).pathname);
+const uploadsDirectory = path.join(currentModuleDir, 'uploads');
+
+if (!fs.existsSync(uploadsDirectory)) {
+  fs.mkdirSync(uploadsDirectory);
+}
 
 // KAFKA CONFIG
 (async () => {
@@ -30,9 +39,9 @@ const PORT = process.env.PORT || 3001;
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       console.log("Consumed a message =", {
-        // topic,
-        // partition,
-        // value: message.value.toString(),
+        topic,
+        partition,
+        value: message.value.toString(),
       });
 
       try {
@@ -41,8 +50,7 @@ const PORT = process.env.PORT || 3001;
 
         // Decode base64 data and save the file to disk
         const decodedData = Buffer.from(data, 'base64');
-        console.log(decodedData)
-        const filePath = `/uploads`;
+        const filePath = path.join(uploadsDirectory, name);
 
         fs.writeFileSync(filePath, decodedData);
 
